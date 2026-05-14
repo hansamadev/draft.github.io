@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft Yönetim Paneli</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Particles -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- ==============================
+             SCREEN 1: SETUP
+             ============================== -->
+        <section id="setupScreen" class="screen active">
+            <header class="hero-header">
+                <h1 class="hero-title">Draft Yönetim Paneli</h1>
+                <p class="hero-subtitle">Profesyonel Snake Draft Sistemi</p>
+                <p class="hero-desc">Arkadaşlar, ekipler ve topluluklar için basit ve profesyonel futbol draft yönetimi.</p>
+            </header>
+
+            <div class="setup-layout">
+                <!-- Team Creation Form -->
+                <div class="glass-panel form-panel">
+                    <h2>Yeni Takım Ekle</h2>
+                    <form id="teamForm" class="form-group">
+                        <div class="input-row">
+                            <div class="input-col">
+                                <label for="teamName">Takım Adı</label>
+                                <input type="text" id="teamName" placeholder="Örn: Fırat FC" required autocomplete="off">
+                            </div>
+                            <div class="input-col color-col">
+                                <label for="teamColor">Renk</label>
+                                <input type="color" id="teamColor" value="#007aff">
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-col">
+                                <label for="teamBudget">Başlangıç Bütçesi (M)</label>
+                                <input type="number" id="teamBudget" value="200" min="1" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Takım Ekle</button>
+                    </form>
+                </div>
+
+                <!-- Added Teams List -->
+                <div class="glass-panel teams-panel">
+                    <h2>Eklenen Takımlar (<span id="teamCountBadge">0</span>)</h2>
+                    <div id="setupTeamsList" class="setup-teams-grid">
+                        <!-- Setup team cards will be injected here -->
+                    </div>
+                    <div class="setup-actions">
+                        <button id="startDraftBtn" class="btn btn-success" disabled>Draft Başlat</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================
+             SCREEN 2: REVEAL DRAFT ORDER
+             ============================== -->
+        <section id="revealScreen" class="screen hidden">
+            <div class="reveal-container glass-panel">
+                <h2 class="hero-title">Kura Çekildi</h2>
+                <p class="hero-subtitle">Rastgele oluşturulan draft sırası aşağıdadır.</p>
+                
+                <div id="revealOrderList" class="reveal-order-list">
+                    <!-- Reveal items will be injected here -->
+                </div>
+                
+                <button id="proceedToDraftBtn" class="btn btn-primary btn-large mt-xl">Drafta Geç</button>
+            </div>
+        </section>
+
+        <!-- ==============================
+             SCREEN 3: DRAFT DASHBOARD
+             ============================== -->
+        <section id="draftScreen" class="screen hidden">
+            <div class="dashboard-layout">
+                
+                <!-- Main Content Left -->
+                <div class="dashboard-main">
+                    <header class="dashboard-header glass-panel">
+                        <div class="header-titles">
+                            <h1>Draft Yönetim Paneli</h1>
+                            <div class="header-badges">
+                                <span id="headerRound" class="badge">Tur 1</span>
+                                <span id="headerPick" class="badge">Seçim 1</span>
+                            </div>
+                        </div>
+                        <div class="header-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Toplam Takım</span>
+                                <span class="stat-value" id="statTotalTeams">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Tamamlanan</span>
+                                <span class="stat-value" id="statCompletedTeams">0</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Active Pick Area -->
+                    <div class="active-pick-panel glass-panel">
+                        <div class="active-team-banner" id="activeTeamBanner">
+                            <div class="active-team-indicator"></div>
+                            <h2>Sıra: <span id="activeTeamName">Bekleniyor...</span></h2>
+                            <p class="sub-text">Bu takım oyuncu öneriyor.</p>
+                        </div>
+                        
+                        <div class="player-input-area">
+                            <input type="text" id="playerNominationInput" placeholder="Oyuncu adı yazın..." autocomplete="off">
+                            <div class="live-player-preview" id="livePlayerPreview"></div>
+                            
+                            <div class="nomination-actions">
+                                <button id="biddingEndedBtn" class="btn btn-primary btn-large">Teklifler Bitti</button>
+                                <button id="undoTransferBtn" class="btn btn-danger btn-outline">Son Transferi Geri Al</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Draft Order Info Panel -->
+                    <div class="draft-order-panel glass-panel">
+                        <div class="panel-header">
+                            <h3>Snake Draft Sırası</h3>
+                            <span id="roundDirectionBadge" class="badge outline">Bu tur normal sıra ile oynanıyor</span>
+                        </div>
+                        <div id="roundOrderList" class="round-order-flex">
+                            <!-- Round order items will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Right -->
+                <aside class="dashboard-sidebar">
+                    <div id="sidebarTeamsContainer" class="sidebar-teams">
+                        <!-- Team status cards will be injected here -->
+                    </div>
+                </aside>
+                
+            </div>
+        </section>
+
+        <!-- ==============================
+             SCREEN 4: RESULTS
+             ============================== -->
+        <section id="resultsScreen" class="screen hidden">
+            <header class="hero-header">
+                <h1 class="hero-title">Draft Tamamlandı</h1>
+                <p class="hero-subtitle">Tüm takımlar 18 oyunculuk kadrolarını tamamladı.</p>
+                <div class="result-actions">
+                    <button id="downloadTxtBtn" class="btn btn-primary">TXT Olarak İndir</button>
+                    <button id="newDraftBtn" class="btn btn-secondary">Yeni Draft Başlat</button>
+                    <button id="resetDataBtn" class="btn btn-danger">Verileri Sıfırla</button>
+                </div>
+            </header>
+
+            <div id="resultsGrid" class="results-grid">
+                <!-- Result cards will be injected here -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ==============================
+         MODALS & TOASTS
+         ============================== -->
+    
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="modal-overlay hidden">
+        <div class="modal-container glass-panel">
+            <h3 class="modal-title">Transfer Onayı</h3>
+            
+            <div class="modal-player-display">
+                <span id="modalPlayerName">OYUNCU</span>
+            </div>
+            
+            <form id="transferForm" class="modal-form">
+                <div class="input-col">
+                    <label for="transferTeamSelect">Oyuncu hangi takıma gitti?</label>
+                    <select id="transferTeamSelect" required>
+                        <!-- Options injected via JS -->
+                    </select>
+                </div>
+                <div class="input-col mt-md">
+                    <label for="transferFee">Transfer ücreti (M)</label>
+                    <input type="number" id="transferFee" placeholder="Örn: 50" min="0" required>
+                </div>
+                
+                <div class="modal-actions mt-xl">
+                    <button type="button" id="cancelTransferBtn" class="btn btn-secondary">İptal</button>
+                    <button type="submit" class="btn btn-success">Transferi Onayla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
